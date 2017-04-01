@@ -35,7 +35,7 @@ public class Transport extends ChannelInboundHandlerAdapter  {
     private RpcControl rpcControl = null;
 
 
-    Transport(ServiceRegistry serviceRegistry) {
+    public Transport(ServiceRegistry serviceRegistry) {
         this.serviceRegistry = serviceRegistry;
     }
 

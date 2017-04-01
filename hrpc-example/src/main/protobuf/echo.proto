@@ -1,0 +1,15 @@
+package transport.hrpc.example.echo;
+
+option java_generic_services = true;
+
+message Request {
+    required string msg = 1;
+};
+
+message Response {
+    required string msg = 1;
+};
+
+service EchoService {
+    rpc echo(Request) returns (Response);
+}
