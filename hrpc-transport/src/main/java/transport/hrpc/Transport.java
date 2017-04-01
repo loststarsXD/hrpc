@@ -173,7 +173,7 @@ public class Transport extends ChannelInboundHandlerAdapter  {
         int newIdentity = identity;
         identity += 1;
         if (identity >= 1<<32){
-            identity = 0;
+            identity = 1;
         }
         return newIdentity;
     }
