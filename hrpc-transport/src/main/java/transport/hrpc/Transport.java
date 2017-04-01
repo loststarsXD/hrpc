@@ -9,6 +9,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import com.google.protobuf.Service;
 import com.google.protobuf.Descriptors.MethodDescriptor;
 import com.google.protobuf.RpcCallback;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.util.Map;
@@ -73,6 +75,25 @@ public class Transport extends ChannelInboundHandlerAdapter  {
         } else if (packet.getType() == Rpc.PacketType.WARNING) {
             Rpc.Warning warning = Rpc.Warning.parseFrom(serizies);
             processWarning(identity, warning);
+        } else if (packet.getType() == Rpc.PacketType.HEARTBEAT) {
+            processHeartbeat(identity);
+        }
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent e = (IdleStateEvent) evt;
+            if (e.state() == IdleState.READER_IDLE) {
+                ctx.close();
+            } else if (e.state() == IdleState.WRITER_IDLE) {
+                  Rpc.Packet packet = Rpc.Packet.newBuilder()
+                            .setIdentity(0)
+                            .setVersion(1)
+                            .setType(Rpc.PacketType.HEARTBEAT)
+                            .setSerialized(Rpc.Heartbeat.newBuilder().build().toByteString()).build();
+                  ctx.writeAndFlush(packet);
+            }
         }
     }
 
@@ -105,6 +126,9 @@ public class Transport extends ChannelInboundHandlerAdapter  {
     }
 
     private void processWarning(int identity, Rpc.Warning warning) throws Exception {
+    }
+
+    private void processHeartbeat(int identity) {
     }
 
 
